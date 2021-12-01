@@ -37,22 +37,40 @@ class hash2 {
     }
 };
 
-void bloomFilter(long TotalSetSize,
+vector<bool> bloomFilter(long TotalSetSize,
                  int hashTableSize, 
                  int numElmsToBeAdded, 
                  vector<int> elmsToBeAdded,
                  int numLookups,
                  vector<int> elmsToLookUp){
-    
-    cout << "pass" ;
+  vector<bool> theFilter(hashTableSize, false);
+  int numHashes = 30;
+  vector<hash1> hashes(numHashes, hash1(hashTableSize));
 
+  // for every value, we run that value through the hash, then change the filter at the corresponding value
+  // this is done for all (numHashes) hash functions.
+  for(int i=0; i < elmsToBeAdded.size(); i++){
+    for(int j=0; j< hashes.size(); j++){
+      theFilter.at(hashes.at(j).hash(elmsToBeAdded.at(i))) = true;
+    }
+  }
+  
+  //Now we look up each value in the filter.
+  vector<bool> valueAtIndexIsInSet(numLookups, true);
+  for(int i=0; i < elmsToLookUp.size(); i++){
+    for(int j=0; j< hashes.size(); j++){
+      valueAtIndexIsInSet.at(i) = valueAtIndexIsInSet.at(i) && (theFilter.at(hashes.at(j).hash(elmsToLookUp.at(i))));
+    }
+  }
+
+  return valueAtIndexIsInSet;
 }
 
-void print(std::vector <int> const &a, int numEntries) {
-  std::cout << "START" << endl;
+void print(vector <int> const &a, int numEntries) {
+  cout << "START" << endl;
   long max = 0;
   long min = 0;
-  for(int i=1; i < a.size(); i++){
+  for(int i=0; i < a.size(); i++){
     // std::cout << " (" << i << " : "<< a.at(i) << ")" << endl;
     if( a.at(i) > max){
       max = a.at(i);
