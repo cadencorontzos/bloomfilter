@@ -37,12 +37,14 @@ class hash2 {
     }
 };
 
-vector<bool> bloomFilter(long TotalSetSize,
-                 int hashTableSize, 
-                 int numElmsToBeAdded, 
-                 vector<int> elmsToBeAdded,
-                 int numLookups,
-                 vector<int> elmsToLookUp){
+vector<bool> bloomFilter( long TotalSetSize,
+                          int hashTableSize, 
+                          int numElmsToBeAdded, 
+                          vector<int> elmsToBeAdded,
+                          int numLookups,
+                          vector<int> elmsToLookUp){
+
+  // Set up our filter and our hash functions.
   vector<bool> theFilter(hashTableSize, false);
   int numHashes = 30;
   vector<hash1> hashes(numHashes, hash1(hashTableSize));
