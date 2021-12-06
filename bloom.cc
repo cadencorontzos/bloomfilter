@@ -5,6 +5,7 @@
 #include <vector>
 using namespace std;
 
+// two different hashing strats.
 class hash1 {    
   public:         
     long seed;
@@ -36,6 +37,7 @@ class hash2 {
     }
 };
 
+// produces a list of booleans corresponding to whether or not the element in to lookup list is in the set
 vector<bool> bloomFilter( long TotalSetSize,
                           int hashTableSize, 
                           int numElmsToBeAdded, 
@@ -67,26 +69,33 @@ vector<bool> bloomFilter( long TotalSetSize,
   return valueAtIndexIsInSet;
 }
 
+// prints a report of a hash. used for hash testing
 void print(vector <int> const &a, int numEntries) {
   cout << "START" << endl;
   long max = 0;
   long min = numEntries;
   for(int i=0; i < a.size(); i++){
-    std::cout << " (" << i << " : "<< a.at(i) << ")" << endl;
+
+    // output the entry
+    cout << " (" << i << " : "<< a.at(i) << ")" << endl;
+
+    // report min and max
     if( a.at(i) > max){
       max = a.at(i);
     }
     if( a.at(i) <= min){
       min = a.at(i);
-      // cout << "Min at "<< i << " : " << a.at(i) << endl;
     }
+
   }
   cout << "END" <<endl;
+  // output a report on the data
   cout << "The max was " << max << " and the min was " << min << "."<< endl;
+  cout << "The range was " << max-min << endl;
 }
 
 int main() {
-  int testLength = 97;
+  int testLength = 2017;
   int numTestEntries = 10000000;
   vector<int> testone(testLength, 0);
   vector<int> testtwo(testLength, 0);
@@ -95,7 +104,8 @@ int main() {
   hash2 two(testLength);
 
   srand(time(NULL));
-  while (numTestEntries > 0){
+  int temp = numTestEntries;
+  while (temp > 0){
     int randomVal = rand();
     int indone = one.hash(randomVal);
     int indtwo = two.hash(randomVal);
@@ -103,7 +113,7 @@ int main() {
     testone.at(indone) +=1;
     testtwo.at(indtwo) +=1;
 
-    numTestEntries--;
+    temp--;
   }
   print(testone, numTestEntries);
   print(testtwo, numTestEntries);
