@@ -20,7 +20,6 @@ class hash1 {
     }
 };
 
-
 class hash2 {       
   public:          
     long a;
@@ -71,15 +70,15 @@ vector<bool> bloomFilter( long TotalSetSize,
 void print(vector <int> const &a, int numEntries) {
   cout << "START" << endl;
   long max = 0;
-  long min = 0;
+  long min = numEntries;
   for(int i=0; i < a.size(); i++){
-    // std::cout << " (" << i << " : "<< a.at(i) << ")" << endl;
+    std::cout << " (" << i << " : "<< a.at(i) << ")" << endl;
     if( a.at(i) > max){
       max = a.at(i);
     }
     if( a.at(i) <= min){
       min = a.at(i);
-      cout << "Min at "<< i << " : " << a.at(i) << endl;
+      // cout << "Min at "<< i << " : " << a.at(i) << endl;
     }
   }
   cout << "END" <<endl;
@@ -87,7 +86,7 @@ void print(vector <int> const &a, int numEntries) {
 }
 
 int main() {
-  int testLength = 2963;
+  int testLength = 97;
   int numTestEntries = 10000000;
   vector<int> testone(testLength, 0);
   vector<int> testtwo(testLength, 0);
@@ -106,7 +105,7 @@ int main() {
 
     numTestEntries--;
   }
-  print(testone, testLength);
-  print(testtwo, testLength);
+  print(testone, numTestEntries);
+  print(testtwo, numTestEntries);
 
 }
