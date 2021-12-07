@@ -38,33 +38,48 @@ class hash2 {
 };
 
 // produces a list of booleans corresponding to whether or not the element in to lookup list is in the set
-vector<bool> bloomFilter( long totalSetSize,
+vector<bool> bloomFilter( bool counting,
+                          long totalSetSize,
                           int hashTableSize, 
                           int numElmsToBeAdded, 
                           vector<long> elmsToBeAdded,
                           int numLookups,
-                          vector<long> elmsToLookUp){
+                          vector<long> elmsToLookUp
+                          int numHashes){
 
   // Set up our filter and our hash functions.
   vector<bool> theFilter(hashTableSize, false);
-  int numHashes = 30;
+  vector<int> theCountingFilter(hashTableSize, 0);
   vector<hash1> hashes(numHashes, hash1(hashTableSize));
 
   // for every value, we run that value through the hash, then change the filter at the corresponding value
   // this is done for all (numHashes) hash functions.
   for(int i=0; i < elmsToBeAdded.size(); i++){
     for(int j=0; j< hashes.size(); j++){
-      theFilter.at(hashes.at(j).hash(elmsToBeAdded.at(i))) = true;
+      if(counting){
+        theCountingFilter.at(hashes.at(j).hash(elmsToBeAdded.at(i)))+=1;
+      }else{
+        theFilter.at(hashes.at(j).hash(elmsToBeAdded.at(i))) = true;
+      }
     }
   }
+
   
   //Now we look up each value in the filter.
   vector<bool> valueAtIndexIsInSet(numLookups, true);
   for(int i=0; i < elmsToLookUp.size(); i++){
     for(int j=0; j< hashes.size(); j++){
-      valueAtIndexIsInSet.at(i) = valueAtIndexIsInSet.at(i) && (theFilter.at(hashes.at(j).hash(elmsToLookUp.at(i))));
+      if(!counting){
+        valueAtIndexIsInSet.at(i) = (valueAtIndexIsInSet.at(i)>=1) && ((theFilter.at(hashes.at(j).hash(elmsToLookUp.at(i))))>=1);
+      }
+      else{
+         valueAtIndexIsInSet.at(i) = (valueAtIndexIsInSet.at(i)>=1) && ((theCountingFilter.at(hashes.at(j).hash(elmsToLookUp.at(i))))>=1);
+      }
+
     }
   }
+ 
+
 
   return valueAtIndexIsInSet;
 }
@@ -94,12 +109,15 @@ void print(vector <int> const &a, int numEntries) {
   cout << "The range was " << max-min << endl;
 }
 
-void generateBloomExample(bool counting, long totalSetSize, int hashTableSize, int numElmsToBeAdded){
-
+// creates filter, adds elements, checks elements, and outputs false positive rate.
+void generateBloomExample(bool counting, long totalSetSize, int hashTableSize, int numElmsToBeAdded, int numHashes){
+  cout << "---------------------------------------------------------------------------------------" << endl;
   vector<long> toAdd(numElmsToBeAdded, 0);
   vector<long> toCheck(numElmsToBeAdded*2, 0);
   int temp = 0;
   srand(time(NULL));
+
+  // chose some random elements to be added to the filter
   while(temp <numElmsToBeAdded){
     int rando = rand() % totalSetSize;
     toAdd.at(temp) = rando;
@@ -117,63 +135,45 @@ void generateBloomExample(bool counting, long totalSetSize, int hashTableSize, i
     toCheck.at(temp)=notInSet;
     temp++;
   }
-  
- 
-  vector<bool> filter = bloomFilter(totalSetSize, hashTableSize, numElmsToBeAdded, toAdd, 2*numElmsToBeAdded, toCheck);
+  if(counting){
+    cout << "A counting bloom filter was generated with the following properties" << endl;
+  }else{
+    cout << "A bloom filter was generated with the following properties" << endl ;
+  }
 
-
+  cout << "Range of Elements : Integers from 0 to " << totalSetSize << endl;
+  cout << "Hash Table Size   : Integers from 0 to " << hashTableSize << endl;
+  cout << "Elements Added    : There were " << numElmsToBeAdded << " elements added to the filter from the chosen range" << endl;
   
+  vector<bool> filter = bloomFilter(counting, totalSetSize, hashTableSize, numElmsToBeAdded, toAdd, 2*numElmsToBeAdded, toCheck, numHashes);
 
   for(int i=0 ;i < numElmsToBeAdded; i++){
 
-    if(!filter.at(i)){
-      cout << "False Negagive" << endl;
+    // this should not be possible. If it happens, the filter is not working correctly
+    if(filter.at(i) == 0){
+      cout << "False Negative" << endl;
     }
   }
   
+  // Check for false positives and output rate
   int falsePositives = 0;
   for(int i=numElmsToBeAdded; i < filter.size(); i++){
     
-    if(filter.at(i)){
+    if(filter.at(i)>=1){
       falsePositives++;
     }
   }
-
   float rate = falsePositives/static_cast<float>(numElmsToBeAdded*2) * 100;
-  cout << "The false positive rate was %" << rate << ".";
- 
-
+  cout << "False positive rt : %" << rate << endl;
+  cout << "---------------------------------------------------------------------------------------" << endl;
 }
 
 int main() {
   long totalSetSize = 1000000000;
   int hashTableSize = 1000;
   int numElmsToBeAdded = 100;
-
-  // generateBloomExample(false, totalSetSize,hashTableSize, numElmsToBeAdded);
- 
-  // int testLength = 2017;
-  // int numTestEntries = 10000000;
-  // vector<int> testone(testLength, 0);
-  // vector<int> testtwo(testLength, 0);
-
-  // hash1 one(testLength);
-  // hash2 two(testLength);
-
-  // srand(time(NULL));
-  // int temp = numTestEntries;
-  // while (temp > 0){
-  //   int randomVal = rand();
-  //   int indone = one.hash(randomVal);
-  //   int indtwo = two.hash(randomVal);
-
-  //   testone.at(indone) +=1;
-  //   testtwo.at(indtwo) +=1;
-
-  //   temp--;
-  // }
-  // print(testone, numTestEntries);
-  // print(testtwo, numTestEntries);
-
+  int numHashes = 30;
+  generateBloomExample(false, totalSetSize, hashTableSize, numElmsToBeAdded, numHashes);
+  generateBloomExample(true , totalSetSize, hashTableSize, numElmsToBeAdded, numHashes);
   return 0;
 }
