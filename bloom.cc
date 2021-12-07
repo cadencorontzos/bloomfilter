@@ -38,12 +38,12 @@ class hash2 {
 };
 
 // produces a list of booleans corresponding to whether or not the element in to lookup list is in the set
-vector<bool> bloomFilter( long TotalSetSize,
+vector<bool> bloomFilter( long totalSetSize,
                           int hashTableSize, 
                           int numElmsToBeAdded, 
-                          vector<int> elmsToBeAdded,
+                          vector<long> elmsToBeAdded,
                           int numLookups,
-                          vector<int> elmsToLookUp){
+                          vector<long> elmsToLookUp){
 
   // Set up our filter and our hash functions.
   vector<bool> theFilter(hashTableSize, false);
@@ -94,28 +94,86 @@ void print(vector <int> const &a, int numEntries) {
   cout << "The range was " << max-min << endl;
 }
 
-int main() {
-  int testLength = 2017;
-  int numTestEntries = 10000000;
-  vector<int> testone(testLength, 0);
-  vector<int> testtwo(testLength, 0);
+void generateBloomExample(bool counting, long totalSetSize, int hashTableSize, int numElmsToBeAdded){
 
-  hash1 one(testLength);
-  hash2 two(testLength);
-
+  vector<long> toAdd(numElmsToBeAdded, 0);
+  vector<long> toCheck(numElmsToBeAdded*2, 0);
+  int temp = 0;
   srand(time(NULL));
-  int temp = numTestEntries;
-  while (temp > 0){
-    int randomVal = rand();
-    int indone = one.hash(randomVal);
-    int indtwo = two.hash(randomVal);
-
-    testone.at(indone) +=1;
-    testtwo.at(indtwo) +=1;
-
-    temp--;
+  while(temp <numElmsToBeAdded){
+    int rando = rand() % totalSetSize;
+    toAdd.at(temp) = rando;
+    toCheck.at(temp) = rando;
+    temp++;
   }
-  print(testone, numTestEntries);
-  print(testtwo, numTestEntries);
+  
+  while(temp < numElmsToBeAdded*2){
+    // find something not in set
+    int notInSet = toCheck.at(temp-numElmsToBeAdded);
+    while(std::find(toCheck.begin(), toCheck.end(), notInSet) != toCheck.end()){
+      notInSet++;
+    }
 
+    toCheck.at(temp)=notInSet;
+    temp++;
+  }
+  
+ 
+  vector<bool> filter = bloomFilter(totalSetSize, hashTableSize, numElmsToBeAdded, toAdd, 2*numElmsToBeAdded, toCheck);
+
+
+  
+
+  for(int i=0 ;i < numElmsToBeAdded; i++){
+
+    if(!filter.at(i)){
+      cout << "False Negagive" << endl;
+    }
+  }
+  
+  int falsePositives = 0;
+  for(int i=numElmsToBeAdded; i < filter.size(); i++){
+    
+    if(filter.at(i)){
+      falsePositives++;
+    }
+  }
+
+  float rate = falsePositives/static_cast<float>(numElmsToBeAdded*2) * 100;
+  cout << "The false positive rate was %" << rate << ".";
+ 
+
+}
+
+int main() {
+  long totalSetSize = 1000000000;
+  int hashTableSize = 1000;
+  int numElmsToBeAdded = 100;
+
+  // generateBloomExample(false, totalSetSize,hashTableSize, numElmsToBeAdded);
+ 
+  // int testLength = 2017;
+  // int numTestEntries = 10000000;
+  // vector<int> testone(testLength, 0);
+  // vector<int> testtwo(testLength, 0);
+
+  // hash1 one(testLength);
+  // hash2 two(testLength);
+
+  // srand(time(NULL));
+  // int temp = numTestEntries;
+  // while (temp > 0){
+  //   int randomVal = rand();
+  //   int indone = one.hash(randomVal);
+  //   int indtwo = two.hash(randomVal);
+
+  //   testone.at(indone) +=1;
+  //   testtwo.at(indtwo) +=1;
+
+  //   temp--;
+  // }
+  // print(testone, numTestEntries);
+  // print(testtwo, numTestEntries);
+
+  return 0;
 }
