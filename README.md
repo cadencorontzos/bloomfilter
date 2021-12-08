@@ -23,8 +23,25 @@ To clear the directory of executables, you can run
 ```
     make clean
 ```
-In a traditional Bloom Filter, one cannot remove elements from the filter without deleting the filter and starting over (since each element of the filter is a single bit, flipping that bit may affect other elements which hash to that value). A solution to this is to use a counting filter, in which each element is a counter rather than a single bit. This can be 
 
+## Example Output
+
+As of now the program can generate bloom filter examples using the funcition `generateBloomExample`. This can be either a counting filter or a regular one. The function makes the filter with the specified properties, inserts a bunch of values, and then checks each of those values, as well as some values that aren't in the filter. If it is a counting filter, the test will also try to remove some elements. Here is an example output.
+```shell
+    % make
+    g++ -std=c++14 bloom.cc -o bloom
+    % ./bloom
+    ---------------------------------------------------------------------------------------
+    A bloom filter was generated with the following properties
+    Range of Elements : Integers from 0 to 1000000000
+    Hash Table Size   : Integers from 0 to 1000
+    Elements Added    : There were 100 elements added to the filter from the chosen range
+    False positive rt : %12
+    ---------------------------------------------------------------------------------------
+    %
+```
+
+In a traditional Bloom Filter, one cannot remove elements from the filter without deleting the filter and starting over (since each element of the filter is a single bit, flipping that bit may affect other elements which hash to that value). A solution to this is to use a counting filter, in which each element is a counter rather than a single bit. This can be tested by setting the `counting` flag to true. It also tracks how many times an element has been added.
 
 ## Hash Function Exploration
 
