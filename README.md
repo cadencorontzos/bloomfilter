@@ -26,7 +26,7 @@ To clear the directory of executables, you can run
 
 ## Example Output
 
-As of now the program can generate bloom filter examples using the funcition `generateBloomExample`. This can be either a counting filter or a regular one. The function makes the filter with the specified properties, inserts a bunch of values, and then checks each of those values, as well as some values that aren't in the filter. If it is a counting filter, the test will also try to remove some elements. Here is an example output.
+As of now the program can generate bloom filter examples using the funcition `generateBloomExample`. This can be either a counting filter or a regular one. The function makes the filter with the specified properties, inserts a bunch of values, and then checks each of those values, as well as some values that aren't in the filter. Here is an example output.
 ```shell
     % make
     g++ -std=c++14 bloom.cc -o bloom
